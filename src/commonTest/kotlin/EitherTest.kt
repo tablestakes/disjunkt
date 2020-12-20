@@ -43,6 +43,18 @@ class EitherTest {
         assertEquals(left, left.map { SomeThing(it) })
         assertSame(left, left.map { SomeThing(it) })
     }
+
+    @Test
+    fun mapLeftTransformsLeftValue() {
+        assertEquals(SomeThing(expectedLeftValue), left.mapLeft {SomeThing(it)}.left() )
+    }
+
+    @Test
+    fun mapLeftPerformsNoActionOnRightValue() {
+        assertEquals(right, right.mapLeft {SomeThing(it)} )
+        assertSame(right, right.mapLeft {SomeThing(it)} )
+    }
 }
 
-private data class SomeThing(val value: String)
+
+private data class SomeThing<T>(val value: T)
