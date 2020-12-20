@@ -11,11 +11,6 @@ import kotlin.test.assertTrue
 
 class EitherTest {
 
-    private val expectedLeftValue = 42
-    private val left: Either<Int, String> = Either.Left(expectedLeftValue)
-
-    private val expectedRightValue = "expected"
-    private val right: Either<Int, String> = Either.Right(expectedRightValue)
 
     @Test
     fun rightGivesValueWhenRight() {
@@ -167,5 +162,3 @@ class EitherTest {
         }
     }
 }
-
-private data class SomeThing<T>(val value: T)

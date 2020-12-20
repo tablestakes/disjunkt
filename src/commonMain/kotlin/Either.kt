@@ -19,7 +19,8 @@ sealed class Either<out L, out R> {
             return left?.hashCode() ?: 0
         }
     }
-    class Right<out R>(val right: R): Either<Nothing, R>() {
+
+    class Right<out R>(val right: R) : Either<Nothing, R>() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -66,7 +67,7 @@ fun <L, R> Either<L, R>.isLeft(): Boolean = when (this) {
     is Either.Left -> true
 }
 
-fun <L, R> Either<L, R>.isRight(): Boolean =when (this) {
+fun <L, R> Either<L, R>.isRight(): Boolean = when (this) {
     is Either.Right -> true
     is Either.Left -> false
 }
@@ -81,5 +82,3 @@ fun <L, R> Either<L, R>.onRight(function: (R) -> Unit): Either<L, R> = when (thi
     is Either.Left -> this
     is Either.Right -> also { function(right) }
 }
-
-
