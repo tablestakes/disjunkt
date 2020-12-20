@@ -6,7 +6,8 @@ import kotlin.test.assertFailsWith
 
 class EitherTest {
 
-    private val left: Either<Int, String> = Either.Left(42)
+    private val expectedLeftValue = 42
+    private val left: Either<Int, String> = Either.Left(expectedLeftValue)
 
     private val expectedRightValue = "expected"
     private val right: Either<Int, String> = Either.Right(expectedRightValue)
@@ -23,7 +24,7 @@ class EitherTest {
 
     @Test
     fun leftGivesValueWhenLeft() {
-        assertEquals(42, left.left())
+        assertEquals(expectedLeftValue, left.left())
     }
 
     @Test
