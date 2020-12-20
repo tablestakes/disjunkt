@@ -1,4 +1,4 @@
-package disjunct
+package disjunkt
 
 sealed class Either<out L, out R> {
     class Left<out L>(val left: L) : Either<L, Nothing>()
@@ -28,3 +28,13 @@ fun <L, R, T> Either<L, R>.flatMapLeft(transform: (L) -> Either<T, R>): Either<T
 }
 
 fun <L, R, T> Either<L, R>.mapLeft(transform: (L) -> T): Either<T, R> = flatMapLeft { Either.Left(transform(it)) }
+
+fun <L, R> Either<L, R>.isLeft(): Boolean = when (this) {
+    is Either.Right -> false
+    is Either.Left -> true
+}
+
+fun <L, R> Either<L, R>.isRight(): Boolean =when (this) {
+    is Either.Right -> true
+    is Either.Left -> false
+}

@@ -18,6 +18,7 @@ plugins {
     kotlin("multiplatform")
     jacoco
     id("org.jetbrains.gradle.plugin.idea-ext")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 kotlin {
@@ -87,18 +88,30 @@ kotlin {
     }
 }
 
-tasks.withType<AbstractTestTask> {
-    inputs.property("always.rerun", Random.nextLong())
-    testLogging {
-        showStandardStreams = true
-        events = TestLogEvent.values().toSet() - TestLogEvent.STARTED
-        showStackTraces = true
-        showExceptions = true
-        exceptionFormat = TestExceptionFormat.FULL
+tasks {
+    withType<AbstractTestTask> {
+        inputs.property("always.rerun", Random.nextLong())
+        testLogging {
+            showStandardStreams = true
+            events = TestLogEvent.values().toSet() - TestLogEvent.STARTED
+            showStackTraces = true
+            showExceptions = true
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+    }
+
+    getByName<io.gitlab.arturbosch.detekt.Detekt>("detekt") {
+        val kotlinSourceDirectories = kotlin.sourceSets
+            .filter {
+                it.name.endsWith("Main")
+            }.map { it.kotlin }
+        println("Setting Detekt source directories to: $kotlinSourceDirectories")
+        source(kotlinSourceDirectories)
+        include("**/*.kt")
     }
 }
 
-// hopefully one day this will work!
+// hopefully one day this will work for common source sets! :-/
 idea {
     module {
         settings {

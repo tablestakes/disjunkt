@@ -1,9 +1,11 @@
-package disjunct
+package disjunkt
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class EitherTest {
 
@@ -87,8 +89,27 @@ class EitherTest {
         assertEquals(right, left.flatMapLeft { right })
         assertEquals(SomeThing(false), left.flatMapLeft { Either.Right(SomeThing(false)) }.right())
     }
-}
 
+    @Test
+    fun isRightReturnsTrueIfRight() {
+        assertTrue(right.isRight())
+    }
+
+    @Test
+    fun isRightReturnsFalseIfLeft() {
+        assertFalse(left.isRight())
+    }
+
+    @Test
+    fun isLeftReturnsTrueIfLeft() {
+        assertTrue(left.isLeft())
+    }
+
+    @Test
+    fun isLeftReturnsFalseIfRight() {
+        assertFalse(right.isLeft())
+    }
+}
 
 
 private data class SomeThing<T>(val value: T)
