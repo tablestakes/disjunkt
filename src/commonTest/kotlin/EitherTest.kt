@@ -6,22 +6,31 @@ import kotlin.test.assertFailsWith
 
 class EitherTest {
 
+    private val left: Either<Int, String> = Either.Left(42)
+
+    private val expectedRightValue = "expected"
+    private val right: Either<Int, String> = Either.Right(expectedRightValue)
+
     @Test
     fun rightGivesValueWhenRight() {
-
-        val expected = "expected"
-        val d: Either<Int, String> = Either.Right(expected)
-
-        assertEquals(expected, d.right())
+        assertEquals(expectedRightValue, right.right())
     }
 
     @Test
     fun rightThrowsWhenLeft() {
+        assertFailsWith(NoSuchElementException::class) { left.right() }
+    }
 
-        val d: Either<Int, String> = Either.Left(42)
+    @Test
+    fun leftGivesValueWhenLeft() {
+        assertEquals(42, left.left())
+    }
 
-        assertFailsWith(NoSuchElementException::class) { d.right() }
+    @Test
+    fun leftThrowsWhenRight() {
+        assertFailsWith(NoSuchElementException::class) { right.left() }
     }
 
 }
+
 
