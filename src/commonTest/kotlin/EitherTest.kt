@@ -3,6 +3,7 @@ package disjunct
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 
 class EitherTest {
 
@@ -32,6 +33,16 @@ class EitherTest {
         assertFailsWith(NoSuchElementException::class) { right.left() }
     }
 
+    @Test
+    fun mapTransformsRightValue() {
+        assertEquals(SomeThing(expectedRightValue), right.map { SomeThing(it) }.right())
+    }
+
+    @Test
+    fun mapPerformsNoActionOnLeftValue() {
+        assertEquals(left, left.map { SomeThing(it) })
+        assertSame(left, left.map { SomeThing(it) })
+    }
 }
 
-
+private data class SomeThing(val value: String)

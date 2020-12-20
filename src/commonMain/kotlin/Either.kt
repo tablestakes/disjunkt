@@ -14,3 +14,8 @@ fun <L, R> Either<L, R>.left(): L = when (this) {
     is Either.Left -> this.left
     is Either.Right -> throw NoSuchElementException()
 }
+
+fun <L, R, T> Either<L, R>.map(transform: (R) -> T): Either<L, T> = when (this) {
+    is Either.Left -> this
+    is Either.Right -> Either.Right(transform(right))
+}
