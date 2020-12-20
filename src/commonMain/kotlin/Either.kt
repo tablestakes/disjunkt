@@ -15,12 +15,16 @@ fun <L, R> Either<L, R>.left(): L = when (this) {
     is Either.Right -> throw NoSuchElementException()
 }
 
-fun <L, R, T> Either<L, R>.map(transform: (R) -> T): Either<L, T> = when (this) {
+fun <L, R, T> Either<L, R>.flatMap(transform: (R) -> Either<L, T>): Either<L, T> = when (this) {
     is Either.Left -> this
-    is Either.Right -> Either.Right(transform(right))
+    is Either.Right -> transform(right)
 }
 
-fun <L, R, T> Either<L, R>.mapLeft(transform: (L) -> T): Either<T, R> = when (this) {
-    is Either.Left -> Either.Left(transform(left))
+fun <L, R, T> Either<L, R>.map(transform: (R) -> T): Either<L, T> = flatMap { Either.Right(transform(it)) }
+
+fun <L, R, T> Either<L, R>.flatMapLeft(transform: (L) -> Either<T, R>): Either<T, R> = when (this) {
+    is Either.Left -> transform(left)
     is Either.Right -> this
 }
+
+fun <L, R, T> Either<L, R>.mapLeft(transform: (L) -> T): Either<T, R> = flatMapLeft { Either.Left(transform(it)) }

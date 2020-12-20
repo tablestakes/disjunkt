@@ -34,27 +34,61 @@ class EitherTest {
     }
 
     @Test
-    fun mapTransformsRightValue() {
+    fun mapTransformsRight() {
         assertEquals(SomeThing(expectedRightValue), right.map { SomeThing(it) }.right())
     }
 
     @Test
-    fun mapPerformsNoActionOnLeftValue() {
+    fun mapPerformsNoActionOnLeft() {
         assertEquals(left, left.map { SomeThing(it) })
         assertSame(left, left.map { SomeThing(it) })
     }
 
     @Test
-    fun mapLeftTransformsLeftValue() {
-        assertEquals(SomeThing(expectedLeftValue), left.mapLeft {SomeThing(it)}.left() )
+    fun mapLeftTransformsLeft() {
+        assertEquals(SomeThing(expectedLeftValue), left.mapLeft { SomeThing(it) }.left())
     }
 
     @Test
-    fun mapLeftPerformsNoActionOnRightValue() {
-        assertEquals(right, right.mapLeft {SomeThing(it)} )
-        assertSame(right, right.mapLeft {SomeThing(it)} )
+    fun mapLeftPerformsNoActionOnRight() {
+        assertEquals(right, right.mapLeft { SomeThing(it) })
+        assertSame(right, right.mapLeft { SomeThing(it) })
+    }
+
+    @Test
+    fun flatMapTransformsRight() {
+        assertEquals(SomeThing(expectedRightValue), right.flatMap { Either.Right(SomeThing(it)) }.right())
+    }
+
+    @Test
+    fun flatMapPerformsNoActionOnLeft() {
+        assertEquals(left, left.flatMap { Either.Right(SomeThing(it)) })
+        assertSame(left, left.flatMap { Either.Right(SomeThing(it)) })
+    }
+
+    @Test
+    fun flatMapCanReturnLeft() {
+        assertEquals(left, right.flatMap { left })
+        assertEquals(SomeThing(false), right.flatMap { Either.Left(SomeThing(false)) }.left())
+    }
+
+    @Test
+    fun flatMapLeftTransformsLeft() {
+        assertEquals(SomeThing(expectedLeftValue), left.flatMapLeft { Either.Left(SomeThing(it)) }.left())
+    }
+
+    @Test
+    fun flatMapLeftPerformsNoActionOnRight() {
+        assertSame(right, right.flatMapLeft { Either.Left(SomeThing(it)) })
+    }
+
+    @Test
+    fun flatMapLeftCanReturnRight() {
+        assertEquals(right, left.flatMapLeft { right })
+        assertEquals(SomeThing(false), left.flatMapLeft { Either.Right(SomeThing(false)) }.right())
     }
 }
+
 
 
 private data class SomeThing<T>(val value: T)
