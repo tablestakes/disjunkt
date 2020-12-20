@@ -3,9 +3,11 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.ide.idea.model.IdeaModule
 import org.jetbrains.gradle.ext.ModuleSettings
 import org.jetbrains.gradle.ext.PackagePrefixContainer
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import kotlin.random.Random
 
 group = "tablestakes"
+version = "0.1.0"
 
 repositories {
     jcenter()
@@ -16,6 +18,7 @@ plugins {
     jacoco
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("io.gitlab.arturbosch.detekt")
+    `maven-publish`
 }
 
 kotlin {
@@ -74,7 +77,15 @@ kotlin {
         all {
             languageSettings.progressiveMode = true
             languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+            packagePrefix("$group.$name")
+
         }
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
     }
 }
 
@@ -95,20 +106,20 @@ tasks {
             .filter {
                 it.name.endsWith("Main")
             }.map { it.kotlin }
-        println("Setting Detekt source directories to: $kotlinSourceDirectories")
+        logger.info("Setting Detekt source directories to: $kotlinSourceDirectories")
         source(kotlinSourceDirectories)
         include("**/*.kt")
     }
 }
 
 // hopefully one day this will work for common source sets! :-/
-idea {
-    module {
-        settings {
-            val modulePrefix = "$group.$name"
-            packagePrefix["src/commonMain/kotlin"] = modulePrefix
-            packagePrefix["src/commonTest/kotlin"] = modulePrefix
-        }
+fun KotlinSourceSet.packagePrefix(prefix: String) {
+    idea.module.settings {
+        this@packagePrefix.kotlin.sourceDirectories
+            .map { f -> f.toRelativeString(projectDir) }
+            .forEach {
+                packagePrefix[it] = prefix
+            }
     }
 }
 
