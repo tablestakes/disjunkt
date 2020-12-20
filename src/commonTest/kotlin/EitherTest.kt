@@ -4,6 +4,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -109,7 +111,61 @@ class EitherTest {
     fun isLeftReturnsFalseIfRight() {
         assertFalse(right.isLeft())
     }
-}
 
+    @Test
+    fun onRightPerformsActionAndReturnsSameInstanceWhenRight() {
+        var invokedWith: String? = null
+        assertSame(right, right.onRight { invokedWith = it })
+        assertEquals(expectedRightValue, invokedWith)
+    }
+
+    @Test
+    fun onLeftPerformsActionAndReturnsSameInstanceWhenLeft() {
+        var invokedWith: Int? = null
+        assertSame(left, left.onLeft { invokedWith = it })
+        assertEquals(expectedLeftValue, invokedWith)
+    }
+
+    @Test
+    fun onRightReturnsSameInstanceWithoutPerformingActionWhenLeft() {
+        var invokedWith: String? = null
+        assertSame(left, left.onRight { invokedWith = it })
+        assertNull(invokedWith)
+    }
+
+    @Test
+    fun onLeftReturnsSameInstanceWithoutPerformingActionWhenRight() {
+        var invokedWith: Int? = null
+        assertSame(right, right.onLeft { invokedWith = it })
+        assertNull(invokedWith)
+    }
+
+    @Test
+    fun leftEquality() {
+        assertEquals(Either.Left("something"), Either.Left("something"))
+        assertNotEquals(Either.Left("something"), Either.Left("something else"))
+        assertNotEquals(Either.Left("something"), Either.Right("something"))
+    }
+
+    @Test
+    fun rightEquality() {
+        assertEquals(Either.Right("something"), Either.Right("something"))
+        assertNotEquals(Either.Right("something"), Either.Right("something else"))
+        assertNotEquals(Either.Right("something"), Either.Left("something"))
+    }
+
+    @Test
+    fun destructuringReturnRightWhenRight() {
+        val (value) = right
+        assertEquals(expectedRightValue, value)
+    }
+
+    @Test
+    fun destructuringThrowsWhenLeft() {
+        assertFailsWith(NoSuchElementException::class) {
+            val (value) = left
+        }
+    }
+}
 
 private data class SomeThing<T>(val value: T)

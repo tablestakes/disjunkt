@@ -1,8 +1,40 @@
 package tablestakes.disjunkt
 
 sealed class Either<out L, out R> {
-    class Left<out L>(val left: L) : Either<L, Nothing>()
-    class Right<out R>(val right: R): Either<Nothing, R>()
+    operator fun component1(): R = right()
+
+    class Left<out L>(val left: L) : Either<L, Nothing>() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Left<*>
+
+            if (left != other.left) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return left?.hashCode() ?: 0
+        }
+    }
+    class Right<out R>(val right: R): Either<Nothing, R>() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Right<*>
+
+            if (right != other.right) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return right?.hashCode() ?: 0
+        }
+    }
 }
 
 fun <L, R> Either<L, R>.right(): R = when (this) {
@@ -38,3 +70,16 @@ fun <L, R> Either<L, R>.isRight(): Boolean =when (this) {
     is Either.Right -> true
     is Either.Left -> false
 }
+
+
+fun <L, R> Either<L, R>.onLeft(function: (L) -> Unit): Either<L, R> = when (this) {
+    is Either.Left -> also { function(left) }
+    is Either.Right -> this
+}
+
+fun <L, R> Either<L, R>.onRight(function: (R) -> Unit): Either<L, R> = when (this) {
+    is Either.Left -> this
+    is Either.Right -> also { function(right) }
+}
+
+
