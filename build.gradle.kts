@@ -1,14 +1,11 @@
-import kotlin.random.Random
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.ide.idea.model.IdeaModule
 import org.jetbrains.gradle.ext.ModuleSettings
 import org.jetbrains.gradle.ext.PackagePrefixContainer
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+import kotlin.random.Random
 
-group = "aknauf"
+group = "tablestakes"
 
 repositories {
     jcenter()
@@ -42,27 +39,20 @@ kotlin {
     }
 
     mingwX64 {
-        binaries {
-            sharedLib()
-        }
+        binaries.sharedLib()
+    }
+
+    linuxX64 {
+        binaries.sharedLib()
     }
 
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-            }
-        }
 
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-            }
-        }
-
-        val jvmMain by getting {
-            dependencies {
             }
         }
 

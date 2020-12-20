@@ -1,4 +1,4 @@
-package disjunkt
+package tablestakes.disjunkt
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
