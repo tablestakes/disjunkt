@@ -8,4 +8,5 @@ pluginManagement {
         id("org.jetbrains.gradle.plugin.idea-ext") version ideaExtPluginVersion
     }
 }
+
 rootProject.name = "disjunkt"

@@ -1,9 +1,9 @@
 package tablestakes.disjunkt
 
-internal val expectedLeftValue = 42
+internal const val expectedLeftValue = 42
 internal val left: Either<Int, String> = Either.Left(expectedLeftValue)
 
-internal val expectedRightValue = "expected"
+internal const val expectedRightValue = "expected"
 internal val right: Either<Int, String> = Either.Right(expectedRightValue)
 
 
