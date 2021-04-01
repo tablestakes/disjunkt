@@ -11,7 +11,6 @@ import kotlin.test.assertTrue
 
 class EitherTest {
 
-
     @Test
     fun rightGivesValueWhenRight() {
         assertEquals(expectedRightValue, right.right())

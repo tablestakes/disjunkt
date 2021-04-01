@@ -1,3 +1,4 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.ide.idea.model.IdeaModule
@@ -27,6 +28,7 @@ kotlin {
         compilations.all {
             println("Setting kotlinOptions.jvmTarget to $jvmTarget")
             kotlinOptions.jvmTarget = jvmTarget
+            kotlinOptions.languageVersion = "1.4"
         }
 
         tasks {
@@ -48,7 +50,6 @@ kotlin {
     linuxX64 {
         binaries.sharedLib()
     }
-
 
     sourceSets {
 
@@ -78,7 +79,6 @@ kotlin {
             languageSettings.progressiveMode = true
             languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
             packagePrefix("$group.$name")
-
         }
     }
 }
@@ -101,7 +101,7 @@ tasks {
         }
     }
 
-    getByName<io.gitlab.arturbosch.detekt.Detekt>("detekt") {
+    getByName<Detekt>("detekt") {
         val kotlinSourceDirectories = kotlin.sourceSets
             .filter {
                 it.name.endsWith("Main")
