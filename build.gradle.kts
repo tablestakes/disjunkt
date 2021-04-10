@@ -1,34 +1,55 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.plugins.ide.idea.model.IdeaModule
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.gradle.ext.ModuleSettings
 import org.jetbrains.gradle.ext.PackagePrefixContainer
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import kotlin.random.Random
 
-group = "tablestakes"
-version = "0.1.0"
+group = "io.github.tablestakes"
 
 repositories {
+    mavenCentral()
     jcenter()
 }
 
 plugins {
     kotlin("multiplatform")
+//    id("de.otto.find.project-version")
     jacoco
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.dokka")
+    signing
     `maven-publish`
 }
 
+//projectVersion {
+//    useSemanticVersioning() {
+//        majorVersion = 0
+//    }
+//}
+
 kotlin {
-    jvm {
-        val jvmTarget: String by project
+
+    targets.all {
         compilations.all {
-            println("Setting kotlinOptions.jvmTarget to $jvmTarget")
-            kotlinOptions.jvmTarget = jvmTarget
-            kotlinOptions.languageVersion = "1.4"
+            kotlinOptions {
+                languageVersion = "1.4"
+            }
+        }
+    }
+    jvm {
+        val kotlinJvmTarget: String by project
+        compilations.all {
+            println("Setting kotlinOptions.jvmTarget to $kotlinJvmTarget")
+            kotlinOptions {
+                jvmTarget = kotlinJvmTarget
+            }
         }
 
         tasks {
@@ -52,7 +73,6 @@ kotlin {
     }
 
     sourceSets {
-
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
@@ -83,12 +103,6 @@ kotlin {
     }
 }
 
-publishing {
-    repositories {
-        mavenLocal()
-    }
-}
-
 tasks {
     withType<AbstractTestTask> {
         inputs.property("always.rerun", Random.nextLong())
@@ -112,6 +126,83 @@ tasks {
     }
 }
 
+val dokkaHtml by tasks.getting(DokkaTask::class)
+
+val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+    from(dokkaHtml)
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+
+        onlyInCi {
+            maven {
+                name = "MavenCentral"
+                url = uri("https://s01.oss.sonatype.org/")
+                credentials(PasswordCredentials::class)
+            }
+        }
+    }
+
+    publications.withType<MavenPublication> {
+        artifact(javadocJar)
+
+        pom {
+            name.set(project.name)
+            description.set("A right-biased, monadic disjunction for Kotlin multiplatform.")
+            url.set("https://github.com/tablestakes/disjunkt")
+
+            scm {
+                val projectGitUrl = "https://github.com/tablestakes/disjunkt.git"
+                connection.set("scm:git:$projectGitUrl.git")
+                developerConnection.set("scm:git:$projectGitUrl.git")
+                url.set(projectGitUrl)
+            }
+
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                }
+            }
+
+            developers {
+                developer {
+                    name.set("Aaron Knauf")
+                    email.set("aknauf+tablestakes@gmail.com")
+                    url.set("https://github.com/aknauf")
+                }
+            }
+        }
+    }
+}
+
+onlyInCi {
+    signing {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications)
+    }
+}
+
+// tidy up gradle 7 implicit dependency warnings.
+tasks {
+    val signTasks = withType<Sign>()
+    withType<PublishToMavenRepository> {
+        dependsOn(check, signTasks)
+    }
+
+    listOf(
+        "jsSourcesJar" to "jsGenerateExternalsIntegrated",
+        "detekt" to "jsGenerateExternalsIntegrated"
+    ).map { (t, d) -> getByName(t) to getByName(d) }.forEach { (t, d) ->
+        t.dependsOn(d)
+    }
+}
+
 // hopefully one day this will work for common source sets! :-/
 fun KotlinSourceSet.packagePrefix(prefix: String) {
     idea.module.settings {
@@ -128,3 +219,5 @@ fun IdeaModule.settings(configure: ModuleSettings.() -> Unit) =
 
 val ModuleSettings.packagePrefix: PackagePrefixContainer
     get() = (this as ExtensionAware).the()
+
+fun onlyInCi(block: () -> Unit) = System.getenv("CI")?.let { block() }
