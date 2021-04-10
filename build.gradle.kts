@@ -19,7 +19,7 @@ repositories {
 
 plugins {
     kotlin("multiplatform")
-//    id("de.otto.find.project-version")
+    id("de.otto.find.project-version")
     jacoco
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("io.gitlab.arturbosch.detekt")
@@ -28,11 +28,9 @@ plugins {
     `maven-publish`
 }
 
-//projectVersion {
-//    useSemanticVersioning() {
-//        majorVersion = 0
-//    }
-//}
+projectVersion {
+    useSemanticVersioning()
+}
 
 kotlin {
 
@@ -197,7 +195,8 @@ tasks {
 
     listOf(
         "jsSourcesJar" to "jsGenerateExternalsIntegrated",
-        "detekt" to "jsGenerateExternalsIntegrated"
+        "detekt" to "jsGenerateExternalsIntegrated",
+        "compileTestKotlinJs" to "jsJar"
     ).map { (t, d) -> getByName(t) to getByName(d) }.forEach { (t, d) ->
         t.dependsOn(d)
     }
