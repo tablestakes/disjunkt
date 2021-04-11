@@ -1,5 +1,6 @@
 [![codebeat badge](https://codebeat.co/badges/3eea2673-85ed-4e76-98c9-e4281d3aca0e)](https://codebeat.co/projects/github-com-tablestakes-disjunkt-master)
 [![download](https://img.shields.io/maven-central/v/io.github.tablestakes/disjunkt)](https://mvnrepository.com/artifact/io.github.tablestakes/disjunkt)
+[![codecov](https://codecov.io/gh/tablestakes/disjunkt/branch/master/graph/badge.svg?token=HDVT4MBHTU)](https://codecov.io/gh/tablestakes/disjunkt)
 
 # Disjunkt
 

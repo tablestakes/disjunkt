@@ -57,6 +57,7 @@ kotlin {
         tasks {
             val jvmTest by getting(Test::class) {
                 useJUnitPlatform {}
+
             }
         }
     }
@@ -230,6 +231,10 @@ tasks {
         "compileTestKotlinJs" to "jsJar"
     ).map { (t, d) -> getByName(t) to getByName(d) }.forEach { (t, d) ->
         t.dependsOn(d)
+    }
+
+    check {
+        finalizedBy(jacocoTestReport)
     }
 }
 
