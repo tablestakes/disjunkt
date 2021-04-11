@@ -138,7 +138,7 @@ publishing {
         onlyInCi {
             maven {
                 name = "MavenCentral"
-                url = uri("https://s01.oss.sonatype.org/")
+                url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 credentials(PasswordCredentials::class)
             }
         }
