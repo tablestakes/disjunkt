@@ -7,7 +7,10 @@ import org.gradle.plugins.ide.idea.model.IdeaModule
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.gradle.ext.ModuleSettings
 import org.jetbrains.gradle.ext.PackagePrefixContainer
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import kotlin.random.Random
 
 group = "io.github.tablestakes"
@@ -24,6 +27,7 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("io.gitlab.arturbosch.detekt")
     id("org.jetbrains.dokka")
+    id("io.codearte.nexus-staging")
     signing
     `maven-publish`
 }
@@ -124,6 +128,33 @@ tasks {
     }
 }
 
+val jacocoTestReport by tasks.creating(JacocoReport::class) {
+    group = "reporting"
+    dependsOn(tasks.withType<KotlinJvmTest>())
+    val jvmMainCompilations = kotlin.targets.asMap.values
+        .filter { it.platformType == KotlinPlatformType.jvm }
+        .map { it.compilations["main"] as KotlinJvmCompilation }
+
+    sourceDirectories.setFrom(jvmMainCompilations.flatMap { it.kotlinSourceDirectories })
+    classDirectories.setFrom(jvmMainCompilations.map { it.output })
+    executionData.setFrom(this.dependsOn.flatMap {
+
+        fun Any.data(): List<File?> =
+            when (this) {
+                is TaskCollection<*> -> this.flatMap { t -> t.data() }
+                is Test -> listOf(coverageData)
+                else -> listOf()
+            }
+
+        it.data().filterNotNull()
+    })
+
+    reports {
+        html.isEnabled = true
+        xml.isEnabled = true
+    }
+}
+
 val dokkaHtml by tasks.getting(DokkaTask::class)
 
 val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
@@ -190,7 +221,7 @@ onlyInCi {
 tasks {
     val signTasks = withType<Sign>()
     withType<PublishToMavenRepository> {
-        dependsOn(check, signTasks)
+        dependsOn(check, jacocoTestReport, signTasks)
     }
 
     listOf(
@@ -220,3 +251,7 @@ val ModuleSettings.packagePrefix: PackagePrefixContainer
     get() = (this as ExtensionAware).the()
 
 fun onlyInCi(block: () -> Unit) = System.getenv("CI")?.let { block() }
+
+val Test.coverageData: File? get() = extensions.findByType(JacocoTaskExtension::class)?.destinationFile
+val KotlinJvmCompilation.kotlinSourceDirectories
+    get() = allKotlinSourceSets.map { it.kotlin }

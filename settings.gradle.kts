@@ -8,6 +8,7 @@ pluginManagement {
         id("org.jetbrains.dokka") version "1.4.30"
         id("io.gitlab.arturbosch.detekt") version detektVersion
         id("org.jetbrains.gradle.plugin.idea-ext") version ideaExtPluginVersion
+        id("io.codearte.nexus-staging") version "0.30.0"
     }
 }
 
